@@ -1,0 +1,12 @@
+# Build output
+Bin/
+Obj/
+build/
+
+# Visual Studio user state
+.vs/
+*.user
+*.suo
+
+# ASIO is copied in from the game's ExtLibs; it is not part of this prototype.
+ExtLibs/asio/

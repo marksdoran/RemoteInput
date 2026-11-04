@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Settings shared by every project in RemoteInput.sln.
+
+  ASIO is not included in this folder. Copy the game's ExtLibs\asio folder (v1.28.0) to ExtLibs\asio here, so
+  that ExtLibs\asio\include\asio.hpp exists. The sources include it as "ExtLibs/asio/include/asio.hpp", exactly
+  as the game does.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RemoteInputRoot>$(MSBuildThisFileDirectory)</RemoteInputRoot>
+    <OutDir>$(RemoteInputRoot)Bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(RemoteInputRoot)Obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <!-- Headers under these folders are third-party (or stand-ins for the game's), so their warnings are not shown. -->
+    <ExternalIncludePath>$(RemoteInputRoot)ExtLibs;$(RemoteInputRoot)EngineStubs;$(ExternalIncludePath)</ExternalIncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <WarningLevel>Level4</WarningLevel>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <!-- $(RemoteInputRoot) plays the part of the game's source root, where ExtLibs and FALCLIB live. -->
+      <AdditionalIncludeDirectories>$(RemoteInputRoot);$(RemoteInputRoot)ExtLibs\asio\include;$(RemoteInputRoot)EngineStubs;$(RemoteInputRoot)Source;$(RemoteInputRoot)Game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0A00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Stops early with a clear message, rather than with a missing-header error, if ASIO has not been copied in. -->
+  <Target Name="RemoteInputCheckAsio" BeforeTargets="ClCompile">
+    <Error Condition="!Exists('$(RemoteInputRoot)ExtLibs\asio\include\asio.hpp')"
+           Text="ASIO is missing: copy the game's ExtLibs\asio folder (v1.28.0) to $(RemoteInputRoot)ExtLibs\asio. See README.md." />
+  </Target>
+</Project>
